@@ -1,17 +1,27 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 
 export default function PuzzlePage() {
   const containerRef = useRef(null);
   const thumbs = ["/1.png", "/2.png", "/3.png", "/4.png", "/5.png"];
-  const descriptions = [
+
+  // AZ & EN açıklamalar
+  const descriptionsAz = [
     "“Bayquşlarla qarğaların vuruşması” miniatürü. “Kəlilə və Dimnə”. Rəssam Şəmsəddin Təbrizi. Təbriz, 1390-cı illər. Sultan Əhməd Cəlairin nüsxəsi. Topqapı sarayı muzeyi, İstanbul",
     "“Cəngavər atı ilə” miniatürü. Rəssam Əbdül Baği Bakuvi. Təbriz, 1430-cu illər. Topqapı sarayı muzeyi, İstanbul",
     "“Çövkən oyunu” miniatürü. “Quy və Çövkən”. Rəssam Soltan Məhəmməd (və ya onun şagirdlərindən biri). Təbriz, 1524-cü il. Rusiya Milli Kitabxanası, Sankt-Peterburq",
     "“Gənc zadəgan və qoca” miniatürü. “Xəmsə”. Rəssam Kəmaləddin Behzad. Təbriz, 1530-cu illər. Frir qalereyası, Vaşinqton",
     "“İsfəndiyar əjdahanı öldürür” miniatürü. Rəssam Sadıq bəy Əfşar. II Şah İsmayılın “Şahnamə”si. Təbriz, 1576-1577-ci illər. Ağa Xan Muzeyi, Toronto",
+  ];
+  const descriptionsEn = [
+    "Miniature “The Battle of Owls and Crows”. “Kalila and Dimna”. Artist Shamseddin Tabrizi. Tabriz, 1390s. Copy of Sultan Ahmad Jalayir. Topkapi Palace Museum, Istanbul",
+    "Miniature “Knight with his horse”. Artist Abdul-Baqi Bakuvi. Tabriz, 1430s. Topkapi Palace Museum, Istanbul",
+    "Miniature “The Chovkan Game”. “Quy and Chovkan”. Artist Sultan Muhammad (or one of his students). Tabriz, 1524. National Library of Russia, St. Petersburg",
+    "Miniature “Young Nobleman and Old Man”. “Khamsa”. Artist Kamaleddin Behzad. Tabriz, 1530s. Freer Gallery of Art, Washington",
+    "Miniature “Isfandiyar Slaying the Dragon”. Artist Sadiq Bey Afshar",
   ];
 
   const [activeThumb, setActiveThumb] = useState(0);
@@ -24,9 +34,9 @@ export default function PuzzlePage() {
       try { window.__puzzleKill(); } catch {}
     }
 
-    /* ---------- SABİT TEPSİ ÖLÇÜLERİ (BÜYÜTÜLDÜ) ---------- */
+    /* ---------- SABİT TEPSİ ÖLÇÜLERİ ---------- */
     const BOARD_LEFT = 300, BOARD_TOP = 140;
-    const BOARD_W = 1200, BOARD_H = 675; // <-- büyütülen tepsi
+    const BOARD_W = 1200, BOARD_H = 675; // 16:9, geniş alan
 
     /* ---------- STYLES ---------- */
     const style = document.createElement("style");
@@ -36,6 +46,7 @@ export default function PuzzlePage() {
         --board-top:${BOARD_TOP}px;
         --board-w:${BOARD_W}px;
         --board-h:${BOARD_H}px;
+        --blue:#13CAFF;
       }
       html,body{height:100%}
       *{-webkit-tap-highlight-color:transparent}
@@ -53,15 +64,17 @@ export default function PuzzlePage() {
       .thumbs{display:grid;grid-template-columns:repeat(2,120px);gap:18px}
       .thumb{border:3px solid rgba(255,255,255,.6);border-radius:10px;overflow:hidden;background:transparent;padding:0;transition:box-shadow .2s,border-color .2s,transform .06s;min-height:48px}
       .thumb:active{transform:scale(.98)}
-      .thumb.active{border-color:#13CAFF;box-shadow:0 0 0 4px rgba(19,202,255,.35)}
+      .thumb.active{border-color:var(--blue);box-shadow:0 0 0 4px rgba(19,202,255,.35)}
       .thumb img{display:block}
 
       #boardFrame{
         position:absolute;
         left:var(--board-left); top:var(--board-top);
         width:var(--board-w); height:var(--board-h);
-        border:6px solid rgba(255,255,255,.95);border-radius:6px;
-        box-shadow:0 10px 30px rgba(0,0,0,.35) inset;pointer-events:none;z-index:5;
+        border:3px solid rgba(255,255,255,.95);
+        border-radius:6px;
+        box-shadow:0 10px 30px rgba(0,0,0,.35) inset;
+        pointer-events:none; z-index:5;
       }
       #lockShade{
         position:absolute;
@@ -74,13 +87,31 @@ export default function PuzzlePage() {
         background:repeating-linear-gradient(45deg,rgba(0,0,0,.15) 0 10px,rgba(0,0,0,.25) 10px 20px)
       }
 
-      .controlDock{position:absolute;left:24px;bottom:36px;width:260px;z-index:1200;display:flex;flex-direction:column;gap:10px}
-      .row{display:flex;gap:8px;flex-wrap:wrap}
-      .btn{background:#13CAFF;color:#fff;font-weight:700;padding:12px 16px;border-radius:12px;text-align:center;cursor:pointer;border:none;min-height:48px}
+      .controlDock{position:absolute;left:24px;bottom:36px;width:260px;z-index:1200;display:flex;flex-direction:column;gap:14px}
+      .piecesCol{display:flex;flex-direction:column;gap:10px}
+      /* Parça seçim butonları (dikey) */
+      .pieceBtn{
+        background:#fff;
+        color:var(--blue);
+        border:2px solid var(--blue);
+        border-radius:12px;
+        padding:12px 14px;
+        text-align:center;
+        font-weight:800;
+        cursor:pointer;
+        min-height:48px;
+      }
+      .pieceBtn.active{
+        background:var(--blue);
+        color:#fff;
+        box-shadow:0 0 0 3px rgba(19,202,255,.25) inset;
+      }
+
+      .btn{background:var(--blue);color:#fff;font-weight:700;padding:12px 16px;border-radius:12px;text-align:center;cursor:pointer;border:none;min-height:48px}
       .btn.sm{padding:10px 14px;border-radius:10px}
       .btn.active{box-shadow:0 0 0 3px rgba(19,202,255,.35) inset;filter:saturate(1.2)}
       .timerBox{display:flex;align-items:center;gap:8px}
-      .timerBox input{height:48px;width:120px;padding:8px 10px;border-radius:10px;border:2px solid rgba(255,255,255,.5);background:rgba(0,0,0,.25);color:#fff;font-size:16px}
+      .label{font-weight:700;color:#fff;opacity:.9}
       .count{min-width:90px;height:48px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;letter-spacing:.5px;font-size:16px}
 
       .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:2000}
@@ -89,22 +120,35 @@ export default function PuzzlePage() {
       .ovbox h2{font-size:28px;margin:0 0 14px}
       .ovbox p{opacity:.85;margin:0 0 16px}
 
-      /* Açıklama konumu artık tepsi değişkenlerine bağlı */
+      /* Açıklama (AZ + EN) */
       .descBar{
         position:absolute;
         left:var(--board-left);
         top:calc(var(--board-top) + var(--board-h) + 14px);
         width:var(--board-w);
-        max-height:110px;overflow:auto;padding:10px 14px;border-radius:8px;
+        max-height:140px;overflow:auto;padding:12px 14px;border-radius:8px;
         background:rgba(0,0,0,.45);color:#fff;font-size:14px;line-height:1.35;backdrop-filter:blur(2px);z-index:6;
       }
+      .descBar .descEn{ margin-top:8px; opacity:.92; font-style:italic; font-size:13px }
+
+      /* Sağ üst ev iconu */
+      .homeBtn{
+        position:absolute; top:24px; right:24px; z-index:1400;
+        display:inline-flex; align-items:center; justify-content:center;
+        width:48px; height:48px; border-radius:12px;
+        background:rgba(0,0,0,.5); color:#fff; text-decoration:none;
+        border:1px solid rgba(255,255,255,.35);
+        backdrop-filter: blur(2px);
+      }
+      .homeBtn:active{ transform:translateY(1px) }
+      .homeBtn svg{ width:24px; height:24px; stroke:#fff }
     `;
     document.head.appendChild(style);
 
     const ctrl = new AbortController();
     let rafId = 0;
 
-    /* ---------- Helpers / Engine (deformasyon yok + sabit alan) ---------- */
+    /* ---------- Helpers / Engine ---------- */
     const mhypot = Math.hypot, mabs = Math.abs;
     const mround = Math.round, msqrt = Math.sqrt, mfloor = Math.floor;
     const rnd = Math.random;
@@ -113,9 +157,13 @@ export default function PuzzlePage() {
     const arrayShuffle = (arr)=>{ for(let k=arr.length-1;k>=1;--k){const r=intAlea(0,k+1);[arr[k],arr[r]]=[arr[r],arr[k]];} return arr; };
 
     class Point{constructor(x,y){this.x=+x;this.y=+y}}
-    class Segment{constructor(p1,p2){this.p1=new Point(p1.x,p1.y);this.p2=new Point(p2.x,p2.y);} dx(){return this.p2.x-this.p1.x} dy(){return this.p2.y-this.p1.y} pointOnRelative(c){return new Point(this.p1.x+c*this.dx(),this.p1.y+c*this.dy())}}
+    class Segment{
+      constructor(p1,p2){this.p1=new Point(p1.x,p1.y);this.p2=new Point(p2.x,p2.y);}
+      dx(){return this.p2.x-this.p1.x} dy(){return this.p2.y-this.p1.y}
+      pointOnRelative(c){return new Point(this.p1.x+c*this.dx(),this.p1.y+c*this.dy())}
+    }
     class Side{
-      constructor(){this.type="";this.points=[]}
+      constructor(){this.type="";this.points=[];this.scaledPoints=[]}
       reversed(){const ns=new Side();ns.type=this.type;ns.points=this.points.slice().reverse();return ns}
       scale(p){const sx=p.scalex, sy=p.scaley; this.scaledPoints=this.points.map(pt=>new Point(pt.x*sx, pt.y*sy))}
       drawPath(ctx,ox,oy,noMove){
@@ -152,7 +200,10 @@ export default function PuzzlePage() {
       ];
       side.type="z";
     }
-    class Piece{constructor(kx,ky){this.ts=new Side();this.rs=new Side();this.bs=new Side();this.ls=new Side();this.kx=kx;this.ky=ky} scale(p){this.ts.scale(p);this.rs.scale(p);this.bs.scale(p);this.ls.scale(p)}}
+    class Piece{
+      constructor(kx,ky){this.ts=new Side();this.rs=new Side();this.bs=new Side();this.ls=new Side();this.kx=kx;this.ky=ky}
+      scale(p){this.ts.scale(p);this.rs.scale(p);this.bs.scale(p);this.ls.scale(p)}
+    }
     class PolyPiece{
       constructor(piece,puzzle){
         this.pckxmin=piece.kx; this.pckxmax=piece.kx+1; this.pckymin=piece.ky; this.pckymax=piece.ky+1;
@@ -160,6 +211,7 @@ export default function PuzzlePage() {
         this.listLoops();
         this.canvas=document.createElement("canvas"); this.canvas.className="polypiece"; this.ctx=this.canvas.getContext("2d");
         puzzle.container.appendChild(this.canvas);
+        this.x=0; this.y=0; this.nx=0; this.ny=0; this.offsx=0; this.offsy=0;
       }
       listLoops(){
         const that=this;
@@ -223,13 +275,13 @@ export default function PuzzlePage() {
       moveTo(x,y){ this.x=x; this.y=y; this.canvas.style.left=x+"px"; this.canvas.style.top=y+"px"; }
       ifNear(other){
         const p=this.puzzle;
-        const x=this.x-p.scalex*this.pckxmin, y=this.y-p.scaley*this.pckymin;
-        const ox=other.x-p.scalex*other.pckxmin, oy=other.y-p.scaley*other.pckymin;
-        if(Math.hypot(x-ox,y-oy)>=p.dConnect) return false;
+        const x=this.x - p.scalex*this.pckxmin, y=this.y - p.scaley*this.pckymin;
+        const ox=other.x - p.scalex*other.pckxmin, oy=other.y - p.scaley*other.pckymin;
+        if(mhypot(x-ox,y-oy)>=p.dConnect) return false;
         for(let i=this.pieces.length-1;i>=0;--i) for(let j=other.pieces.length-1;j>=0;--j){
           const a=this.pieces[i], b=other.pieces[j];
-          if(a.kx===b.kx && Math.abs(a.ky-b.ky)===1) return true;
-          if(a.ky===b.ky && Math.abs(a.kx-b.kx)===1) return true;
+          if(a.kx===b.kx && mabs(a.ky-b.ky)===1) return true;
+          if(a.ky===b.ky && mabs(a.kx-b.kx)===1) return true;
         }
         return false;
       }
@@ -246,7 +298,10 @@ export default function PuzzlePage() {
         this.pieces.sort((p1,p2)=>p1.ky-p2.ky || p1.kx-p2.kx);
         this.listLoops(); this.drawImage();
 
-        this.moveTo(this.x+this.puzzle.scalex*(this.pckxmin-ox), this.y+this.puzzle.scaley*(this.pckymin-oy));
+        this.moveTo(
+          this.x + this.puzzle.scalex * (this.pckxmin - ox),
+          this.y + this.puzzle.scaley * (this.pckymin - oy)
+        );
 
         // sabit alan kıskaç
         const cl = this.puzzle.clampFixed(this.x, this.y);
@@ -260,7 +315,7 @@ export default function PuzzlePage() {
       constructor(container, events){
         this.container=container; this._events = events;
 
-        // tek kanal pointer events
+        // pointer (mouse+touch birleşik)
         container.addEventListener("pointerdown",(e)=>{ e.preventDefault(); this._events.push({t:"down", p:this.rel(e)}); }, {signal: ctrl.signal});
         container.addEventListener("pointerup",   ()=>{ this._events.push({t:"up"}); }, {signal: ctrl.signal});
         container.addEventListener("pointercancel",()=>{ this._events.push({t:"up"}); }, {signal: ctrl.signal});
@@ -275,9 +330,7 @@ export default function PuzzlePage() {
         this.srcImage=new window.Image();
         this.srcImage.onload=()=>{this.imageLoaded=true; this._events.push({t:"imgLoaded"});};
 
-        this.nbPieces=50;
-
-        // çerçeve/gölge ölçüleri (CSS değişkenleri zaten set, burada ekstra ayar gerekmiyor)
+        this.nbPieces=20; // varsayılan 20
       }
       rel(e){const r=this.container.getBoundingClientRect(); return {x:e.clientX-r.x, y:e.clientY-r.y};}
       getSize(){const cs=getComputedStyle(this.container); this.contWidth=parseFloat(cs.width); this.contHeight=parseFloat(cs.height);}
@@ -287,16 +340,12 @@ export default function PuzzlePage() {
         arrayShuffle(this.polyPieces); this.evaluateZIndex(); }
       computenxny(){
         const w=this.srcImage.naturalWidth || 1, h=this.srcImage.naturalHeight || 1, n=this.nbPieces || 12;
-        let errMin=1e9;
-        const nH=mround(msqrt((n*w)/h));
-        const nV=mround(n/Math.max(1,nH));
-        this.nx = Math.max(2, nH);
-        this.ny = Math.max(2, nV);
+        let errMin=1e9; const nH=mround(msqrt((n*w)/h)), nV=mround(n/Math.max(1,nH));
+        this.nx=Math.max(2,nH); this.ny=Math.max(2,nV);
         for(let ky=0;ky<5;ky++){
           for(let kx=0;kx<5;kx++){
-            const ny = nV + ky - 2;
-            const nx = nH + kx - 2;
-            if (nx < 2 || ny < 2) continue;
+            const ny=nV+ky-2, nx=nH+kx-2;
+            if (nx<2 || ny<2) continue;
             let err=(nx*h)/ny/w; err=err+1/err-2; err+=Math.abs(1-(nx*ny)/n);
             if(err<errMin){errMin=err; this.nx=nx; this.ny=ny;}
           }
@@ -358,6 +407,7 @@ export default function PuzzlePage() {
         this.dConnect = Math.max(10, Math.min(this.scalex, this.scaley) / 10);
         this.embossThickness = Math.max(2, Math.min(5, 2 + (Math.min(this.scalex, this.scaley) / 200) * (5 - 2)));
 
+        // SABİT alan kıskaç (değişmez)
         this.boardRect = {
           x0: this.offsx - this.scalex/2,
           y0: this.offsy - this.scaley/2,
@@ -365,7 +415,7 @@ export default function PuzzlePage() {
           y1: this.offsy + this.gameHeight - 1.5*this.scaley,
         };
       }
-      evaluateZIndex(){ this.polyPieces.forEach((pp,k)=>pp.canvas.style.zIndex=k+10); this.zIndexSup=this.polyPieces.length+10; }
+      evaluateZIndex(){ this.polyPieces.forEach((pp,k)=>pp.canvas.style.zIndex=String(k+10)); this.zIndexSup=this.polyPieces.length+10; }
       spreadRight(){
         const sxy = Math.min(this.scalex, this.scaley);
         const x0 = BOARD_LEFT + BOARD_W + sxy*0.5;
@@ -395,20 +445,21 @@ export default function PuzzlePage() {
     const overlay = document.getElementById("ov");
     const restartBtn = document.getElementById("btnRestart");
     const startBtn = document.getElementById("btnStart");
-    const inputSec = document.getElementById("timeInput");
     const counter = document.getElementById("countdown");
     const partBtns = Array.from(document.querySelectorAll("[data-nb]"));
     const lockShade = document.getElementById("lockShade");
 
+    // 3 dakika sabit
+    const TIME_LIMIT = 180;
     let timerId = null;
-    let timeLeft = 0;
+    let timeLeft = TIME_LIMIT;
     let locked = true;
 
     const fmt = (s)=>{const m=Math.floor(s/60), r=s%60; return String(m).padStart(2,"0")+":"+String(r).padStart(2,"0");};
     function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
     function startTimer(){
       stopTimer();
-      timeLeft = Math.max(1, parseInt(inputSec.value || "300", 10));
+      timeLeft = TIME_LIMIT;
       counter.textContent = fmt(timeLeft);
       locked = false; lockShade.classList.remove("on");
       timerId = setInterval(()=>{
@@ -428,8 +479,7 @@ export default function PuzzlePage() {
       overlay.classList.remove("show");
       currentSrc = src || currentSrc;
       stopTimer();
-      const preset = Math.max(1, parseInt(inputSec.value || "300", 10));
-      counter.textContent = fmt(preset);
+      counter.textContent = fmt(TIME_LIMIT);
       locked = true; lockShade.classList.add("on");
       puzzle.reset();
       puzzle.srcImage.src = currentSrc;
@@ -440,16 +490,22 @@ export default function PuzzlePage() {
       b.addEventListener("click", ()=>{
         partBtns.forEach(x=>x.classList.remove("active"));
         b.classList.add("active");
-        puzzle.nbPieces = parseInt(b.dataset.nb,10);
-        restartKeepCount();
+        const val = parseInt(b.dataset.nb,10);
+        // sadece 12 / 20 / 30
+        if ([12,20,30].includes(val)) {
+          puzzle.nbPieces = val;
+          restartKeepCount();
+        }
       }, {signal: ctrl.signal});
     });
     startBtn.addEventListener("click", ()=>{ startTimer(); }, {signal: ctrl.signal});
     restartBtn.addEventListener("click", ()=>{ restartKeepCount(); }, {signal: ctrl.signal});
 
-    document.querySelector('[data-nb="50"]').classList.add("active");
+    // Varsayılan aktif: 20 parça
+    const def = document.querySelector('[data-nb="20"]');
+    if (def) def.classList.add("active");
 
-    (window).__startPuzzle = bootWith;
+    window.__startPuzzle = bootWith;
 
     function animate(){
       rafId = requestAnimationFrame(animate);
@@ -478,10 +534,10 @@ export default function PuzzlePage() {
             const {x,y} = e.p;
             for(let k=puzzle.polyPieces.length-1;k>=0;--k){
               const pp=puzzle.polyPieces[k];
-              if(pp.ctx.isPointInPath(pp.path, (x-pp.x), (y-pp.y))){
+              if(pp.ctx.isPointInPath(pp.path, x-pp.x, y-pp.y)){
                 moving={pp,startX:x,startY:y,baseX:pp.x,baseY:pp.y};
                 puzzle.polyPieces.splice(k,1); puzzle.polyPieces.push(pp);
-                pp.canvas.style.zIndex=puzzle.zIndexSup;
+                pp.canvas.style.zIndex=String(puzzle.zIndexSup);
                 state=55; return;
               }
             }
@@ -524,6 +580,7 @@ export default function PuzzlePage() {
           break;
       }
     }
+
     bootWith(thumbs[0]);
     animate();
 
@@ -549,11 +606,21 @@ export default function PuzzlePage() {
   return (
     <div className="bg-[url(/bgimg.jpg)] bg-cover bg-center h-[100vh] w-full">
       <div className="museum-root">
+        {/* Sağ üst ev iconu */}
+        <Link href="/" className="homeBtn" aria-label="Ana səhifə">
+          <svg viewBox="0 0 24 24" fill="none" strokeWidth="2">
+            <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M5 10v10h14V10" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M9 20v-6h6v6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </Link>
+
         <div className="titleWrap">
           <div className="title">AZƏRBAYCAN MİNİATÜR SƏNƏTİ MUZEYİ</div>
           <div className="subtitle">Museum of Azerbaijani Miniature Art</div>
         </div>
 
+        {/* Sol thumbnails */}
         <div className="leftDock">
           <div className="thumbs">
             {thumbs.map((src, i) => (
@@ -569,25 +636,35 @@ export default function PuzzlePage() {
           </div>
         </div>
 
+        {/* Puzzle alanı + sabit çerçeve */}
         <div id="forPuzzle" ref={containerRef} />
         <div id="boardFrame" />
         <div id="lockShade" className="on" />
 
-        <div className="descBar">{descriptions[activeThumb]}</div>
+        {/* Açıklamalar (AZ + EN) */}
+        <div className="descBar">
+          <div className="descAz">{descriptionsAz[activeThumb]}</div>
+          <div className="descEn">{descriptionsEn[activeThumb]}</div>
+        </div>
 
+        {/* Kontrol paneli */}
         <div className="controlDock">
-          <div className="row">
-            <button className="btn sm" data-nb="12">12 Parça</button>
-            <button className="btn sm" data-nb="50">50 Parça</button>
-            <button className="btn sm" data-nb="100">100 Parça</button>
+          <div className="piecesCol">
+            <button className="pieceBtn" data-nb="12">12 Parça / 12 Pieces</button>
+            <button className="pieceBtn" data-nb="20">20 Parça / 20 Pieces</button>
+            <button className="pieceBtn" data-nb="30">30 Parça / 30 Pieces</button>
           </div>
           <div className="timerBox">
-            <input id="timeInput" type="number" min="10" step="10" defaultValue={300} title="Saniyə" />
-            <button id="btnStart" className="btn">BAŞLA</button>
-            <div id="countdown" className="count">05:00</div>
+            <div className="">
+                <span className="label">Vaxt/Duration</span>
+            <div id="countdown" className="count">03:00</div>
+            </div>
+            <button id="btnStart" className="btn">BAŞLA/START</button>
+            
           </div>
         </div>
 
+        {/* Sonuç overlay */}
         <div id="ov" className="overlay">
           <div className="ovbox">
             <h2 id="ovMsg">Təbriklər! Qazandınız</h2>
