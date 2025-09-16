@@ -29,34 +29,104 @@ export default function PuzzlePage() {
 
   const [activeThumb, setActiveThumb] = useState(0);
 
-  // ---- Müzik: otomatik başlat, loop et; policy bloklarsa start'a tıklayınca başlat ----
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  /* ====================== MÜZİK: Kayıttan Devam & Autostart ====================== */
+  // ==== GLOBAL BGM (autoplay + sayfalar arası kesintisiz) ====
+useEffect(() => {
+  if (typeof window === "undefined") return;
 
-    const a = new Audio("/1.mp3");
-    a.loop = true; // bittiğinde otomatik yeniden başlat
-    a.preload = "auto";
-    audioRef.current = a;
-
-    // Autoplay dene (browser bloklarsa sessizce düşer)
-    a.play()
-      .then(() => setIsPlaying(true))
-      .catch(() => setIsPlaying(false));
-
+  const STORAGE_KEY = "puzzleAudioState";
+  const readSaved = () => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+    catch { return {}; }
+  };
+  const save = (a) => {
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          time: a.currentTime || 0,
+          playing: !a.paused,
+          muted: a.muted,
+          volume: a.volume,
+        })
+      );
+    } catch {}
+  };
+  const throttle = (fn, ms = 1000) => {
+    let t = 0;
     return () => {
-      try {
-        a.pause();
-      } catch {}
-      audioRef.current = null;
+      const n = Date.now();
+      if (n - t > ms) { t = n; fn(); }
     };
-  }, []);
+  };
+
+  const w = window; // @ts-ignore
+  let a = w.__bgmAudio;
+
+  // yoksa oluştur
+  if (!a) {
+    a = new Audio("/1.mp3");
+    a.loop = true;
+    a.preload = "auto";
+    a.autoplay = true;
+
+    // kayıttan devam
+    const saved = readSaved();
+    const onMeta = () => {
+      if (Number.isFinite(saved?.time)) {
+        try { a.currentTime = Math.max(0, saved.time); } catch {}
+      }
+      a.muted  = saved?.muted ?? false;
+      a.volume = saved?.volume ?? 1;
+      a.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+    };
+    a.addEventListener("loadedmetadata", onMeta, { once: true });
+
+    // engelleme olursa ilk tıklamada/kilit aç
+    const unlock = () => {
+      a.play().then(() => setIsPlaying(true)).catch(() => {});
+      document.removeEventListener("pointerdown", unlock);
+      document.removeEventListener("keydown", unlock);
+    };
+    document.addEventListener("pointerdown", unlock, { once: true });
+    document.addEventListener("keydown", unlock, { once: true });
+
+    const saveThrottled = throttle(() => save(a), 1000);
+    a.addEventListener("timeupdate", saveThrottled);
+    a.addEventListener("play", () => { setIsPlaying(true); save(a); });
+    a.addEventListener("pause", () => { setIsPlaying(false); save(a); });
+    window.addEventListener("pagehide", () => save(a));
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible") save(a);
+    });
+
+    // anında dene
+    a.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+
+    // global’e kaydet ve body’e ekle (DOM’dan kopup garbage olmasın)
+    // @ts-ignore
+    w.__bgmAudio = a;
+    try { document.body.appendChild(a); } catch {}
+  } else {
+    // var olanı kullan
+    setIsPlaying(!a.paused);
+    // tekrar dene (engellenmiş olabilir)
+    a.play().then(() => setIsPlaying(true)).catch(() => {});
+  }
+
+  audioRef.current = a;
+
+  return () => {
+    // audio’yu kapatma! sayfalar arası çalmaya devam edecek.
+    audioRef.current = a;
+  };
+}, []);
+
 
   const ensurePlayAudio = () => {
     const a = audioRef.current;
     if (!a) return;
-    a.play()
-      .then(() => setIsPlaying(true))
-      .catch(() => {});
+    a.play().then(() => setIsPlaying(true)).catch(() => {});
   };
 
   const toggleMusic = () => {
@@ -70,17 +140,17 @@ export default function PuzzlePage() {
     }
   };
 
+  /* ====================== PUZZLE ====================== */
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // varsa eski instance temizle (login'den gelişte çift listener önlenir)
     if (typeof window !== "undefined" && window.__puzzleKill) {
       try { window.__puzzleKill(); } catch {}
     }
 
     /* ---------- SABİT TEPSİ ÖLÇÜLERİ ---------- */
     const BOARD_LEFT = 300, BOARD_TOP = 140;
-    const BOARD_W = 1200, BOARD_H = 675; // 16:9, geniş alan
+    const BOARD_W = 1200, BOARD_H = 675;
 
     /* ---------- STYLES ---------- */
     const style = document.createElement("style");
@@ -145,8 +215,11 @@ export default function PuzzlePage() {
       .iconBtn svg{ width:24px; height:24px; stroke:#fff }
 
       .controlDock{position:absolute;left:24px;bottom:36px;width:260px;z-index:1200;display:flex;flex-direction:column;gap:14px}
+      @media screen and (width: 1920px) and (height: 1080px) {
+        .controlDock { bottom: 202px !important; }
+      }
       .piecesCol{display:flex;flex-direction:column;gap:10px}
-      /* Parça seçim butonları (dikey) */
+
       .pieceBtn{
         background:#fff;
         color:var(--blue);
@@ -163,9 +236,7 @@ export default function PuzzlePage() {
         color:#fff;
         box-shadow:0 0 0 3px rgba(19,202,255,.25) inset;
       }
-@media screen and (width: 1920px) and (height: 1080px) {
-  .controlDock { bottom: 150px !important; }
-}
+
       .btn{background:var(--blue);color:#fff;font-weight:700;padding:12px 16px;border-radius:12px;text-align:center;cursor:pointer;border:none;min-height:48px}
       .btn.sm{padding:10px 14px;border-radius:10px}
       .btn.active{box-shadow:0 0 0 3px rgba(19,202,255,.35) inset;filter:saturate(1.2)}
@@ -176,8 +247,8 @@ export default function PuzzlePage() {
       .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:2000}
       .overlay.show{display:flex}
       .ovbox{background:rgba(25,25,25,.9);padding:28px 32px;border-radius:16px;text-align:center;color:#fff;width:min(90vw,420px)}
-      .ovbox h2{font-size:28px;margin:0 0 14px}
-      .ovbox p{opacity:.85;margin:0 0 16px}
+      .ovbox h2{font-size:20px;margin:0 0 10px}
+      .ovbox p{opacity:.9;margin:0 0 16px}
 
       /* Açıklama (AZ + EN) */
       .descBar{
@@ -311,7 +382,7 @@ export default function PuzzlePage() {
           const dx=(pp.kx?0:p.scalex/2)+(pp.kx-this.pckxmin)*p.scalex, dy=(pp.ky?0:p.scaley/2)+(pp.ky-this.pckymin)*p.scaley;
           let w=2*p.scalex, h=2*p.scaley; if(srcx+w>p.gameCanvasCssW) w=p.gameCanvasCssW-srcx; if(srcy+h>p.gameCanvasCssH) h=p.gameCanvasCssH-srcy;
 
-          const s = dpr;
+          const s = p.dpr||1;
           ctx.drawImage(p.gameCanvas, srcx*s, srcy*s, w*s, h*s, dx,dy,w,h);
 
           ctx.translate(p.embossThickness/2, -p.embossThickness/2); ctx.lineWidth=p.embossThickness; ctx.strokeStyle="rgba(0,0,0,.35)"; ctx.stroke(path);
@@ -350,7 +421,6 @@ export default function PuzzlePage() {
           this.y + this.puzzle.scaley * (this.pckymin - oy)
         );
 
-        // sabit alan kıskaç
         const cl = this.puzzle.clampFixed(this.x, this.y);
         this.moveTo(cl.x, cl.y);
 
@@ -362,7 +432,6 @@ export default function PuzzlePage() {
       constructor(container, events){
         this.container=container; this._events = events;
 
-        // pointer (mouse+touch birleşik)
         container.addEventListener("pointerdown",(e)=>{ e.preventDefault(); this._events.push({t:"down", p:this.rel(e)}); }, {signal: ctrl.signal});
         container.addEventListener("pointerup",   ()=>{ this._events.push({t:"up"}); }, {signal: ctrl.signal});
         container.addEventListener("pointercancel",()=>{ this._events.push({t:"up"}); }, {signal: ctrl.signal});
@@ -377,7 +446,7 @@ export default function PuzzlePage() {
         this.srcImage=new window.Image();
         this.srcImage.onload=()=>{this.imageLoaded=true; this._events.push({t:"imgLoaded"});};
 
-        this.nbPieces=20; // varsayılan 20
+        this.nbPieces=20;
       }
       rel(e){const r=this.container.getBoundingClientRect(); return {x:e.clientX-r.x, y:e.clientY-r.y};}
       getSize(){const cs=getComputedStyle(this.container); this.contWidth=parseFloat(cs.width); this.contHeight=parseFloat(cs.height);}
@@ -454,7 +523,7 @@ export default function PuzzlePage() {
         this.dConnect = Math.max(10, Math.min(this.scalex, this.scaley) / 10);
         this.embossThickness = Math.max(2, Math.min(5, 2 + (Math.min(this.scalex, this.scaley) / 200) * (5 - 2)));
 
-        // SABİT alan kıskaç (değişmez)
+        // Tahta içi kıskaç
         this.boardRect = {
           x0: this.offsx - this.scalex/2,
           y0: this.offsy - this.scaley/2,
@@ -496,7 +565,6 @@ export default function PuzzlePage() {
     const partBtns = Array.from(document.querySelectorAll("[data-nb]"));
     const lockShade = document.getElementById("lockShade");
 
-    // 3 dakika sabit
     const TIME_LIMIT = 180;
     let timerId = null;
     let timeLeft = TIME_LIMIT;
@@ -509,7 +577,7 @@ export default function PuzzlePage() {
       timeLeft = TIME_LIMIT;
       counter.textContent = fmt(timeLeft);
       locked = false; lockShade.classList.remove("on");
-      // Kullanıcı etkileşimi olduğundan, müziği başlatmayı tekrar dene (autoplay bloklarını aşmak için)
+      // kullanıcı etkileşimi => müziği başlatmayı tekrar dene
       ensurePlayAudio();
       timerId = setInterval(()=>{
         timeLeft -= 1; counter.textContent = fmt(Math.max(0,timeLeft));
@@ -517,8 +585,12 @@ export default function PuzzlePage() {
       }, 1000);
     }
     function showEnd(win){
-      document.getElementById("ovMsg").textContent = win ? "Təbriklər! Qazandınız" : "Vaxt bitdi! Uduzdunuz";
-      document.getElementById("ovSub").textContent = win ? "Vaxt bitmədən puzzle tamamlandı." : "Vaxt bitdi, tamamlanamadı.";
+      const msg = document.getElementById("ovMsg");
+      const sub = document.getElementById("ovSub");
+      if (msg) msg.textContent = win ? "Təbriklər! Qazandınız" : "Vaxt bitdi! Uduzdunuz";
+      if (sub) sub.textContent = win
+        ? "Təbrik edirik, vaxt bitmədən tamamlandı!  Congratulations, you finished before time ran out!"
+        : "Vaxt bitdi, tamamlanamadı.";
       overlay.classList.add("show");
     }
     function isSolved(){ return puzzle.polyPieces.length===1 && puzzle.polyPieces[0].pieces.length===puzzle.nx*puzzle.ny; }
@@ -540,7 +612,6 @@ export default function PuzzlePage() {
         partBtns.forEach(x=>x.classList.remove("active"));
         b.classList.add("active");
         const val = parseInt(b.dataset.nb,10);
-        // sadece 12 / 20 / 30
         if ([12,20,30].includes(val)) {
           puzzle.nbPieces = val;
           restartKeepCount();
@@ -550,7 +621,6 @@ export default function PuzzlePage() {
     startBtn.addEventListener("click", ()=>{ startTimer(); }, {signal: ctrl.signal});
     restartBtn.addEventListener("click", ()=>{ restartKeepCount(); }, {signal: ctrl.signal});
 
-    // Varsayılan aktif: 20 parça
     const def = document.querySelector('[data-nb="20"]');
     if (def) def.classList.add("active");
 
@@ -599,7 +669,7 @@ export default function PuzzlePage() {
             if(locked) return;
             const nx=e.p.x - moving.startX + moving.baseX;
             const ny=e.p.y - moving.startY + moving.baseY;
-            const cl=puzzle.clampFixed(nx, ny); // sabit alan
+            const cl=puzzle.clampFixed(nx, ny);
             moving.pp.moveTo(cl.x,cl.y);
           } else if(e.t==="up"){
             if(!locked){
@@ -633,7 +703,6 @@ export default function PuzzlePage() {
     bootWith(thumbs[0]);
     animate();
 
-    // cleanup
     function kill(){
       try{ cancelAnimationFrame(rafId); }catch{}
       try{ ctrl.abort(); }catch{}
@@ -673,13 +742,11 @@ export default function PuzzlePage() {
             title={isPlaying ? "Müziği durdur" : "Müziği başlat"}
           >
             {isPlaying ? (
-              // Pause icon
               <svg viewBox="0 0 24 24" fill="none" strokeWidth="2">
                 <rect x="6" y="4" width="4" height="16" rx="1" stroke="currentColor"/>
                 <rect x="14" y="4" width="4" height="16" rx="1" stroke="currentColor"/>
               </svg>
             ) : (
-              // Play icon
               <svg viewBox="0 0 24 24" fill="none" strokeWidth="2">
                 <path d="M8 5v14l11-7z" stroke="currentColor" strokeLinejoin="round"/>
               </svg>
@@ -689,7 +756,7 @@ export default function PuzzlePage() {
 
         <div className="titleWrap">
           <div className="title">AZƏRBAYCAN MİNİATÜR SƏNƏTİ MUZEYİ</div>
-          <div className="subtitle">Museum of Azerbaijani Miniature Art</div>
+          <div className="subtitle title">MUSEUM OF AZERBAIJANI MINIATURE ART</div>
         </div>
 
         {/* Sol thumbnails */}
@@ -707,24 +774,29 @@ export default function PuzzlePage() {
             ))}
           </div>
         </div>
+
+        {/* Puzzle alanı + sabit çerçeve */}
         <div id="forPuzzle" ref={containerRef} />
         <div id="boardFrame" />
         <div id="lockShade" className="on" />
+
+        {/* Açıklamalar (AZ + EN) */}
         <div className="descBar">
           <div className="descAz"><span className="font-bold text-[#13CAFF]">AZ </span>{descriptionsAz[activeThumb]}</div>
-          <div className="descEn"><span className="font-bold text-[#13CAFF]">EN </span>{descriptionsEn[activeThumb]}</div>
+          <div className="descAz"><span className="font-bold text-[#13CAFF]">EN </span>{descriptionsEn[activeThumb]}</div>
         </div>
 
+        {/* Kontrol paneli */}
         <div className="controlDock">
           <div className="piecesCol">
             <button className="pieceBtn" data-nb="12">12 Parça / 12 Pieces</button>
             <button className="pieceBtn" data-nb="20">20 Parça / 20 Pieces</button>
             <button className="pieceBtn" data-nb="30">30 Parça / 30 Pieces</button>
-            <button id="btnStart" className="btn">BAŞLA  /  START</button>
+            <button id="btnStart" className="btn">BAŞLA / START</button>
           </div>
           <div className="timerBox">
-            <div className=" w-full flex flex-col justify-center items-center">
-              <span className="label">Vaxt/Duration</span>
+            <div className="w-full flex flex-col justify-center items-center">
+              <span className="label">Vaxt / Duration</span>
               <div id="countdown" className="count !text-3xl">03:00</div>
             </div>
           </div>
@@ -733,9 +805,9 @@ export default function PuzzlePage() {
         {/* Sonuç overlay */}
         <div id="ov" className="overlay">
           <div className="ovbox">
-            <h2 id="ovMsg">Təbriklər! Qazandınız</h2>
-            <p id="ovSub">Vaxt bitmədən puzzle tamamlandı.</p>
-            <button id="btnRestart" className="btn">Yenidən başlat</button>
+            <h2 id="ovMsg">Təbrik edirik, vaxt bitmədən tamamlandı!  Congratulations, you finished before time ran out!</h2>
+            <p id="ovSub"></p>
+            <button id="btnRestart" className="btn">Yenidən başlat / Play again</button>
           </div>
         </div>
       </div>

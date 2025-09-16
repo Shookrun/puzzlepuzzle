@@ -10,7 +10,7 @@ const Login = () => {
           MİNİATÜR SƏNƏTİ MUZEYİ
         </h1>
         <h2 className="text-white title text-6xl text-center">
-          Museum of Azerbaijani Miniature Art
+          MUSEUM OF AZERBAIJANI <br /> MINIATURE ART
         </h2>
       </div>
 
