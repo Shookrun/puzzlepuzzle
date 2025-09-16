@@ -4,21 +4,21 @@ import Link from "next/link";
 const Login = () => {
   return (
      <div className="bg-[url(/bgimg.jpg)] flex items-center gap-6 justify-center flex-col h-[100vh]">
-      <div>
-        <h1 className="text-white text-6xl text-center font-bold ">
+      <div className='flex flex-col gap-6'>
+        <h1 className="text-white title text-6xl text-center font-bold ">
           AZƏRBAYCAN <br />
           MİNİATÜR SƏNƏTİ MUZEYİ
         </h1>
-        <h2 className="text-white text-6xl text-center">
+        <h2 className="text-white title text-6xl text-center">
           Museum of Azerbaijani Miniature Art
         </h2>
       </div>
 
       <Link
         href={"/puzzle"}
-        className="text-white text-3xl bg-[#13CAFF] px-6 py-4 rounded-xl"
+        className="text-white text-3xl bg-[#13CAFF] px-6 py-4 rounded-xl mt-6"
       >
-        BAŞLA/START
+        BAŞLA  /  START
       </Link>
       <div className="flex flex-col justify-center items-center">
         <span className="font-bold text-white">AZ</span>

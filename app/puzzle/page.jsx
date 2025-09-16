@@ -6,6 +6,9 @@ import React, { useEffect, useRef, useState } from "react";
 
 export default function PuzzlePage() {
   const containerRef = useRef(null);
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const thumbs = ["/1.png", "/2.png", "/3.png", "/4.png", "/5.png"];
 
   // AZ & EN açıklamalar
@@ -25,6 +28,47 @@ export default function PuzzlePage() {
   ];
 
   const [activeThumb, setActiveThumb] = useState(0);
+
+  // ---- Müzik: otomatik başlat, loop et; policy bloklarsa start'a tıklayınca başlat ----
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const a = new Audio("/1.mp3");
+    a.loop = true; // bittiğinde otomatik yeniden başlat
+    a.preload = "auto";
+    audioRef.current = a;
+
+    // Autoplay dene (browser bloklarsa sessizce düşer)
+    a.play()
+      .then(() => setIsPlaying(true))
+      .catch(() => setIsPlaying(false));
+
+    return () => {
+      try {
+        a.pause();
+      } catch {}
+      audioRef.current = null;
+    };
+  }, []);
+
+  const ensurePlayAudio = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.play()
+      .then(() => setIsPlaying(true))
+      .catch(() => {});
+  };
+
+  const toggleMusic = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (a.paused) {
+      a.play().then(() => setIsPlaying(true)).catch(() => {});
+    } else {
+      a.pause();
+      setIsPlaying(false);
+    }
+  };
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -87,6 +131,19 @@ export default function PuzzlePage() {
         background:repeating-linear-gradient(45deg,rgba(0,0,0,.15) 0 10px,rgba(0,0,0,.25) 10px 20px)
       }
 
+      /* Sağ üst: Home + Müzik butonları */
+      .topBtns{position:absolute; top:24px; right:24px; z-index:1400; display:flex; gap:10px}
+      .iconBtn{
+        display:inline-flex; align-items:center; justify-content:center;
+        width:48px; height:48px; border-radius:12px;
+        background:rgba(0,0,0,.5); color:#fff; text-decoration:none;
+        border:1px solid rgba(255,255,255,.35);
+        backdrop-filter: blur(2px);
+        cursor:pointer;
+      }
+      .iconBtn:active{ transform:translateY(1px) }
+      .iconBtn svg{ width:24px; height:24px; stroke:#fff }
+
       .controlDock{position:absolute;left:24px;bottom:36px;width:260px;z-index:1200;display:flex;flex-direction:column;gap:14px}
       .piecesCol{display:flex;flex-direction:column;gap:10px}
       /* Parça seçim butonları (dikey) */
@@ -106,7 +163,9 @@ export default function PuzzlePage() {
         color:#fff;
         box-shadow:0 0 0 3px rgba(19,202,255,.25) inset;
       }
-
+@media screen and (width: 1920px) and (height: 1080px) {
+  .controlDock { bottom: 150px !important; }
+}
       .btn{background:var(--blue);color:#fff;font-weight:700;padding:12px 16px;border-radius:12px;text-align:center;cursor:pointer;border:none;min-height:48px}
       .btn.sm{padding:10px 14px;border-radius:10px}
       .btn.active{box-shadow:0 0 0 3px rgba(19,202,255,.35) inset;filter:saturate(1.2)}
@@ -130,18 +189,6 @@ export default function PuzzlePage() {
         background:rgba(0,0,0,.45);color:#fff;font-size:14px;line-height:1.35;backdrop-filter:blur(2px);z-index:6;
       }
       .descBar .descEn{ margin-top:8px; opacity:.92; font-style:italic; font-size:13px }
-
-      /* Sağ üst ev iconu */
-      .homeBtn{
-        position:absolute; top:24px; right:24px; z-index:1400;
-        display:inline-flex; align-items:center; justify-content:center;
-        width:48px; height:48px; border-radius:12px;
-        background:rgba(0,0,0,.5); color:#fff; text-decoration:none;
-        border:1px solid rgba(255,255,255,.35);
-        backdrop-filter: blur(2px);
-      }
-      .homeBtn:active{ transform:translateY(1px) }
-      .homeBtn svg{ width:24px; height:24px; stroke:#fff }
     `;
     document.head.appendChild(style);
 
@@ -462,6 +509,8 @@ export default function PuzzlePage() {
       timeLeft = TIME_LIMIT;
       counter.textContent = fmt(timeLeft);
       locked = false; lockShade.classList.remove("on");
+      // Kullanıcı etkileşimi olduğundan, müziği başlatmayı tekrar dene (autoplay bloklarını aşmak için)
+      ensurePlayAudio();
       timerId = setInterval(()=>{
         timeLeft -= 1; counter.textContent = fmt(Math.max(0,timeLeft));
         if(timeLeft<=0){ stopTimer(); locked = true; lockShade.classList.add("on"); showEnd(false); }
@@ -606,14 +655,37 @@ export default function PuzzlePage() {
   return (
     <div className="bg-[url(/bgimg.jpg)] bg-cover bg-center h-[100vh] w-full">
       <div className="museum-root">
-        {/* Sağ üst ev iconu */}
-        <Link href="/" className="homeBtn" aria-label="Ana səhifə">
-          <svg viewBox="0 0 24 24" fill="none" strokeWidth="2">
-            <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M5 10v10h14V10" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M9 20v-6h6v6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </Link>
+        {/* Sağ üst: Home + Music */}
+        <div className="topBtns">
+          <Link href="/" className="iconBtn" aria-label="Ana səhifə">
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2">
+              <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M5 10v10h14V10" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9 20v-6h6v6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </Link>
+          <button
+            type="button"
+            className="iconBtn"
+            onClick={toggleMusic}
+            aria-label={isPlaying ? "Müziği durdur" : "Müziği başlat"}
+            aria-pressed={isPlaying}
+            title={isPlaying ? "Müziği durdur" : "Müziği başlat"}
+          >
+            {isPlaying ? (
+              // Pause icon
+              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2">
+                <rect x="6" y="4" width="4" height="16" rx="1" stroke="currentColor"/>
+                <rect x="14" y="4" width="4" height="16" rx="1" stroke="currentColor"/>
+              </svg>
+            ) : (
+              // Play icon
+              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2">
+                <path d="M8 5v14l11-7z" stroke="currentColor" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </button>
+        </div>
 
         <div className="titleWrap">
           <div className="title">AZƏRBAYCAN MİNİATÜR SƏNƏTİ MUZEYİ</div>
@@ -635,32 +707,26 @@ export default function PuzzlePage() {
             ))}
           </div>
         </div>
-
-        {/* Puzzle alanı + sabit çerçeve */}
         <div id="forPuzzle" ref={containerRef} />
         <div id="boardFrame" />
         <div id="lockShade" className="on" />
-
-        {/* Açıklamalar (AZ + EN) */}
         <div className="descBar">
-          <div className="descAz">{descriptionsAz[activeThumb]}</div>
-          <div className="descEn">{descriptionsEn[activeThumb]}</div>
+          <div className="descAz"><span className="font-bold text-[#13CAFF]">AZ </span>{descriptionsAz[activeThumb]}</div>
+          <div className="descEn"><span className="font-bold text-[#13CAFF]">EN </span>{descriptionsEn[activeThumb]}</div>
         </div>
 
-        {/* Kontrol paneli */}
         <div className="controlDock">
           <div className="piecesCol">
             <button className="pieceBtn" data-nb="12">12 Parça / 12 Pieces</button>
             <button className="pieceBtn" data-nb="20">20 Parça / 20 Pieces</button>
             <button className="pieceBtn" data-nb="30">30 Parça / 30 Pieces</button>
+            <button id="btnStart" className="btn">BAŞLA  /  START</button>
           </div>
           <div className="timerBox">
-            <div className="">
-                <span className="label">Vaxt/Duration</span>
-            <div id="countdown" className="count">03:00</div>
+            <div className=" w-full flex flex-col justify-center items-center">
+              <span className="label">Vaxt/Duration</span>
+              <div id="countdown" className="count !text-3xl">03:00</div>
             </div>
-            <button id="btnStart" className="btn">BAŞLA/START</button>
-            
           </div>
         </div>
 
