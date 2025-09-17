@@ -13,18 +13,18 @@ export default function PuzzlePage() {
 
   // AZ & EN açıklamalar
   const descriptionsAz = [
-    "“Bayquşlarla qarğaların vuruşması” miniatürü. “Kəlilə və Dimnə”. Rəssam Şəmsəddin Təbrizi. Təbriz, 1390-cı illər. Sultan Əhməd Cəlairin nüsxəsi. Topqapı sarayı muzeyi, İstanbul",
-    "“Cəngavər atı ilə” miniatürü. Rəssam Əbdül Baği Bakuvi. Təbriz, 1430-cu illər. Topqapı sarayı muzeyi, İstanbul",
-    "“Çövkən oyunu” miniatürü. “Quy və Çövkən”. Rəssam Soltan Məhəmməd (və ya onun şagirdlərindən biri). Təbriz, 1524-cü il. Rusiya Milli Kitabxanası, Sankt-Peterburq",
+    "“Bayquşlarla qarğaların vuruşması” miniatürü. “Kəlilə və Dimnə”. Rəssam Şəmsəddin Təbrizi. Təbriz, 1390-cı illər. Sultan Əhməd Cəlairinin nüsxəsi Topqapı Sarayı Muzeyi, İstanbul",
+    "“Cəngavər atı ilə” miniatürü. Rəssam Əbdül Baqi Bakuvi. Təbriz, 1430-cu illər. Topqapı Sarayı Muzeyi, İstanbul",
+    "“Çövkən oyunu” miniatürü. “Quy və Çövkən”. Rəssam Sultan Məhəmməd (və ya onun şagirdlərindən biri). Təbriz, 1524-cü il. Rusiya Milli Kitabxanası, Sankt-Peterburq",
     "“Gənc zadəgan və qoca” miniatürü. “Xəmsə”. Rəssam Kəmaləddin Behzad. Təbriz, 1530-cu illər. Frir qalereyası, Vaşinqton",
     "“İsfəndiyar əjdahanı öldürür” miniatürü. Rəssam Sadıq bəy Əfşar. II Şah İsmayılın “Şahnamə”si. Təbriz, 1576-1577-ci illər. Ağa Xan Muzeyi, Toronto",
   ];
   const descriptionsEn = [
-    "Miniature “The Battle of Owls and Crows”. “Kalila and Dimna”. Artist Shamseddin Tabrizi. Tabriz, 1390s. Copy of Sultan Ahmad Jalayir. Topkapi Palace Museum, Istanbul",
+    "Miniature “The Battle of Owls and Crows”. “Kalila and Dimna”. Artist Shamseddin Tabrizi. Tabriz, 1390s. Copy by Sultan Ahmad Jalayir. Topkapi Palace Museum, Istanbul",
     "Miniature “Knight with his horse”. Artist Abdul-Baqi Bakuvi. Tabriz, 1430s. Topkapi Palace Museum, Istanbul",
     "Miniature “The Chovkan Game”. “Quy and Chovkan”. Artist Sultan Muhammad (or one of his students). Tabriz, 1524. National Library of Russia, St. Petersburg",
     "Miniature “Young Nobleman and Old Man”. “Khamsa”. Artist Kamaleddin Behzad. Tabriz, 1530s. Freer Gallery of Art, Washington",
-    "Miniature “Isfandiyar Slaying the Dragon”. Artist Sadiq Bey Afshar",
+    "Miniature “Isfandiyar Slaying the Dragon”. Artist: Sadiq Bey Afshar. “Shahnameh” of Shah Ismail II. Tabriz, 1576-1577. Agha Khan Museum, Toronto",
   ];
 
   const [activeThumb, setActiveThumb] = useState(0);
@@ -773,18 +773,16 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Puzzle alanı + sabit çerçeve */}
         <div id="forPuzzle" ref={containerRef} />
         <div id="boardFrame" />
         <div id="lockShade" className="on" />
 
-        {/* Açıklamalar (AZ + EN) */}
+
         <div className="descBar">
           <div className="descAz"><span className="font-bold text-[#13CAFF]">AZ </span>{descriptionsAz[activeThumb]}</div>
           <div className="descAz"><span className="font-bold text-[#13CAFF]">EN </span>{descriptionsEn[activeThumb]}</div>
         </div>
 
-        {/* Kontrol paneli */}
         <div className="controlDock">
           <div className="piecesCol">
             <button className="pieceBtn" data-nb="12">12 Parça / 12 Pieces</button>
@@ -800,7 +798,6 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Sonuç overlay */}
         <div id="ov" className="overlay">
           <div className="ovbox">
             <h2 id="ovMsg">Təbrik edirik, vaxt bitmədən tamamlandı! <br />  Congratulations, you finished before time ran out!</h2>
