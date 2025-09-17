@@ -587,10 +587,8 @@ useEffect(() => {
     function showEnd(win){
       const msg = document.getElementById("ovMsg");
       const sub = document.getElementById("ovSub");
-      if (msg) msg.textContent = win ? "Təbriklər! Qazandınız" : "Vaxt bitdi! Uduzdunuz";
-      if (sub) sub.textContent = win
-        ? "Təbrik edirik, vaxt bitmədən tamamlandı!  Congratulations, you finished before time ran out!"
-        : "Vaxt bitdi, tamamlanamadı.";
+      
+      
       overlay.classList.add("show");
     }
     function isSolved(){ return puzzle.polyPieces.length===1 && puzzle.polyPieces[0].pieces.length===puzzle.nx*puzzle.ny; }
@@ -805,7 +803,7 @@ useEffect(() => {
         {/* Sonuç overlay */}
         <div id="ov" className="overlay">
           <div className="ovbox">
-            <h2 id="ovMsg">Təbrik edirik, vaxt bitmədən tamamlandı!  Congratulations, you finished before time ran out!</h2>
+            <h2 id="ovMsg">Təbrik edirik, vaxt bitmədən tamamlandı! <br />  Congratulations, you finished before time ran out!</h2>
             <p id="ovSub"></p>
             <button id="btnRestart" className="btn">Yenidən başlat / Play again</button>
           </div>
