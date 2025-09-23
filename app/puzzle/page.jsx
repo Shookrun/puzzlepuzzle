@@ -182,6 +182,7 @@ useEffect(() => {
       .thumb img{display:block}
 
       #boardFrame{
+      
         position:absolute;
         left:var(--board-left); top:var(--board-top);
         width:var(--board-w); height:var(--board-h);
@@ -216,7 +217,7 @@ useEffect(() => {
 
       .controlDock{position:absolute;left:24px;bottom:36px;width:260px;z-index:1200;display:flex;flex-direction:column;gap:14px}
       @media screen and (width: 1920px) and (height: 1080px) {
-        .controlDock { bottom: 202px !important; }
+        .controlDock { bottom: 130px !important; }
       }
       .piecesCol{display:flex;flex-direction:column;gap:10px}
 
@@ -720,7 +721,7 @@ useEffect(() => {
   };
 
   return (
-    <div className="bg-[url(/bgimg.jpg)] bg-cover bg-center h-[100vh] w-full">
+    <div className="bg-[url(/bgimg.jpg)] bg-cover bg-center h-[100vh]  w-full">
       <div className="museum-root">
         {/* Sağ üst: Home + Music */}
         <div className="topBtns">
@@ -758,7 +759,7 @@ useEffect(() => {
         </div>
 
         {/* Sol thumbnails */}
-        <div className="leftDock">
+        <div className="leftDock ">
           <div className="thumbs">
             {thumbs.map((src, i) => (
               <button
