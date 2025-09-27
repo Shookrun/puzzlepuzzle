@@ -9,7 +9,7 @@ export default function PuzzlePage() {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const thumbs = ["/1.png", "/2.png", "/3.png", "/4.png", "/5.png"];
+  const thumbs = ["/1.png", "/2.png", "/3.png", "/5.png","/4.png" ];
 
   // AZ & EN açıklamalar
   const descriptionsAz = [
@@ -103,21 +103,18 @@ useEffect(() => {
     // anında dene
     a.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
 
-    // global’e kaydet ve body’e ekle (DOM’dan kopup garbage olmasın)
-    // @ts-ignore
     w.__bgmAudio = a;
     try { document.body.appendChild(a); } catch {}
   } else {
-    // var olanı kullan
     setIsPlaying(!a.paused);
-    // tekrar dene (engellenmiş olabilir)
+
     a.play().then(() => setIsPlaying(true)).catch(() => {});
   }
 
   audioRef.current = a;
 
   return () => {
-    // audio’yu kapatma! sayfalar arası çalmaya devam edecek.
+
     audioRef.current = a;
   };
 }, []);
@@ -140,7 +137,6 @@ useEffect(() => {
     }
   };
 
-  /* ====================== PUZZLE ====================== */
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -148,11 +144,9 @@ useEffect(() => {
       try { window.__puzzleKill(); } catch {}
     }
 
-    /* ---------- SABİT TEPSİ ÖLÇÜLERİ ---------- */
     const BOARD_LEFT = 300, BOARD_TOP = 140;
     const BOARD_W = 1200, BOARD_H = 675;
 
-    /* ---------- STYLES ---------- */
     const style = document.createElement("style");
     style.innerHTML = `
       :root{
@@ -164,7 +158,7 @@ useEffect(() => {
       }
       html,body{height:100%}
       *{-webkit-tap-highlight-color:transparent}
-      .museum-root{position:relative;width:100%;height:100%}
+      .museum-root{position:relative;width:100%;height:100%;}
       #forPuzzle{position:absolute;inset:0;overflow:hidden;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none}
       .polypiece{position:absolute;display:block;overflow:hidden;touch-action:none;will-change:left,top}
       .moving{transition:top 1s linear,left 1s linear}
@@ -175,8 +169,8 @@ useEffect(() => {
       .subtitle{font-size:22px;color:#fff;opacity:.95;margin-top:4px}
 
       .leftDock{position:absolute;left:24px;top:140px;width:280px;display:flex;flex-direction:column;gap:18px;z-index:1200}
-      .thumbs{display:grid;grid-template-columns:repeat(2,120px);gap:18px}
-      .thumb{border:3px solid rgba(255,255,255,.6);border-radius:10px;overflow:hidden;background:transparent;padding:0;transition:box-shadow .2s,border-color .2s,transform .06s;min-height:48px}
+      .thumbs{display:flex;flex-wrap:wrap; align-items:center; justify-content:center;gap:6px;}
+      .thumb{border:3px solid rgba(255,255,255,.6);;overflow:hidden;background:transparent;padding:0;transition:box-shadow .2s,border-color .2s,transform .06s;min-height:150px}
       .thumb:active{transform:scale(.98)}
       .thumb.active{border-color:var(--blue);box-shadow:0 0 0 4px rgba(19,202,255,.35)}
       .thumb img{display:block}
@@ -222,23 +216,22 @@ useEffect(() => {
       .piecesCol{display:flex;flex-direction:column;gap:10px}
 
       .pieceBtn{
-        background:#fff;
-        color:var(--blue);
-        border:2px solid var(--blue);
+        color:white;
         border-radius:12px;
         padding:12px 14px;
         text-align:center;
         font-weight:800;
         cursor:pointer;
-        min-height:48px;
+        background-position:center;
+        background-size:cover;
+        background-image:url(/button.png);
       }
       .pieceBtn.active{
-        background:var(--blue);
-        color:#fff;
-        box-shadow:0 0 0 3px rgba(19,202,255,.25) inset;
+        color:var(--blue);
       }
 
-      .btn{background:var(--blue);color:#fff;font-weight:700;padding:12px 16px;border-radius:12px;text-align:center;cursor:pointer;border:none;min-height:48px}
+      .btn{ background-image:url(/button.png);background-position:center;
+        background-size:cover;color:#fff;font-weight:700;padding:12px 16px;border-radius:12px;text-align:center;cursor:pointer;border:none;min-height:48px}
       .btn.sm{padding:10px 14px;border-radius:10px}
       .btn.active{box-shadow:0 0 0 3px rgba(19,202,255,.35) inset;filter:saturate(1.2)}
       .timerBox{display:flex;align-items:center;gap:8px}
@@ -723,8 +716,16 @@ useEffect(() => {
   return (
     <div className="bg-[url(/bgimg.jpg)] bg-cover bg-center h-[100vh]  w-full">
       <div className="museum-root">
-        {/* Sağ üst: Home + Music */}
-        <div className="topBtns">
+        <div className="topBtns  w-full">
+           <div className='flex flex-col  w-full'>
+        <h1 className="text-white title text-6xl text-shadow-lg leading-18 text-center font-bold ">
+          AZƏRBAYCAN
+          MİNİATÜR SƏNƏTİ MUZEYİ
+        </h1>
+        <h2 className="!text-[#4c2911] font-bold text-shadow-lg title !text-[30px] text-center">
+          MUSEUM OF AZERBAIJANI MINIATURE ART
+        </h2>
+      </div>
           <Link href="/" className="iconBtn" aria-label="Ana səhifə">
             <svg viewBox="0 0 24 24" fill="none" strokeWidth="2">
               <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
@@ -753,10 +754,7 @@ useEffect(() => {
           </button>
         </div>
 
-        <div className="titleWrap">
-          <div className="title">AZƏRBAYCAN MİNİATÜR SƏNƏTİ MUZEYİ</div>
-          <div className="subtitle title">MUSEUM OF AZERBAIJANI MINIATURE ART</div>
-        </div>
+     
 
         {/* Sol thumbnails */}
         <div className="leftDock ">
@@ -768,7 +766,7 @@ useEffect(() => {
                 onClick={() => loadPuzzle(src, i)}
                 aria-label={`thumb-${i+1}`}
               >
-                <Image src={src} alt="" width={120} height={120} draggable={false} />
+                <Image src={src} alt="" width={120} height={660} draggable={false} />
               </button>
             ))}
           </div>
@@ -776,25 +774,26 @@ useEffect(() => {
 
         <div id="forPuzzle" ref={containerRef} />
         <div id="boardFrame" />
-        <div id="lockShade" className="on" />
-
-
-        <div className="descBar">
-          <div className="descAz"><span className="font-bold text-[#13CAFF]">AZ </span>{descriptionsAz[activeThumb]}</div>
-          <div className="descAz"><span className="font-bold text-[#13CAFF]">EN </span>{descriptionsEn[activeThumb]}</div>
+        <div id="lockShade"  className="on " />
+       
+         <div className="descBar">
+          <div className="descAz !text-xl !text-center">{descriptionsAz[activeThumb]}</div>
+        </div>
+        <div className="descBar !top-[930px]">
+          <div className="descAz !text-xl !text-center">{descriptionsEn[activeThumb]}</div>
         </div>
 
         <div className="controlDock">
           <div className="piecesCol">
-            <button className="pieceBtn" data-nb="12">12 Parça / 12 Pieces</button>
-            <button className="pieceBtn" data-nb="20">20 Parça / 20 Pieces</button>
-            <button className="pieceBtn" data-nb="30">30 Parça / 30 Pieces</button>
+            <button className="pieceBtn" data-nb="12">12 PARÇA / 12 PIECES</button>
+            <button className="pieceBtn" data-nb="20">20 PARÇA / 20 PIECES</button>
+            <button className="pieceBtn" data-nb="30">30 PARÇA / 30 PIECES</button>
             <button id="btnStart" className="btn">BAŞLA / START</button>
           </div>
           <div className="timerBox">
             <div className="w-full flex flex-col justify-center items-center">
               <span className="label">Vaxt / Duration</span>
-              <div id="countdown" className="count !text-3xl">03:00</div>
+              <div id="countdown" className="count !text-3xl bg-[#726f6fc2]">03:00</div>
             </div>
           </div>
         </div>
