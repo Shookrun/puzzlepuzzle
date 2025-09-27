@@ -182,7 +182,7 @@ useEffect(() => {
         width:var(--board-w); height:var(--board-h);
         border:3px solid rgba(255,255,255,.95);
         border-radius:6px;
-        box-shadow:0 10px 30px rgba(0,0,0,.35) inset;
+        
         pointer-events:none; z-index:5;
       }
       #lockShade{
@@ -193,7 +193,7 @@ useEffect(() => {
       }
       #lockShade.on{
         display:block;
-        background:repeating-linear-gradient(45deg,rgba(0,0,0,.15) 0 10px,rgba(0,0,0,.25) 10px 20px)
+        
       }
 
       /* Sağ üst: Home + Müzik butonları */
@@ -718,11 +718,11 @@ useEffect(() => {
       <div className="museum-root">
         <div className="topBtns  w-full">
            <div className='flex flex-col  w-full'>
-        <h1 className="text-white title text-6xl text-shadow-lg leading-18 text-center font-bold ">
+        <h1 className="text-white title text-6xl leading-18 text-center font-bold ">
           AZƏRBAYCAN
           MİNİATÜR SƏNƏTİ MUZEYİ
         </h1>
-        <h2 className="!text-[#4c2911] font-bold text-shadow-lg title !text-[30px] text-center">
+        <h2 className="!text-[#4c2911] font-bold title !text-[30px] text-center">
           MUSEUM OF AZERBAIJANI MINIATURE ART
         </h2>
       </div>

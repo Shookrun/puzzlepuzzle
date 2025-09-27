@@ -5,11 +5,11 @@ const Login = () => {
   return (
      <div className="bg-[url(/bgimg.jpg)] flex items-center gap-6 justify-center flex-col h-[100vh]">
       <div className='flex flex-col gap-6'>
-        <h1 className="text-white title text-6xl text-shadow-lg leading-18 text-center font-bold ">
+        <h1 className="text-white title text-6xl  leading-18 text-center font-bold ">
           AZƏRBAYCAN <br />
           MİNİATÜR SƏNƏTİ MUZEYİ
         </h1>
-        <h2 className="text-[#4c2911] font-bold text-shadow-lg title text-[53px] text-center">
+        <h2 className="text-[#4c2911] font-bold  title text-[53px] text-center">
           MUSEUM OF AZERBAIJANI MINIATURE ART
         </h2>
       </div>
