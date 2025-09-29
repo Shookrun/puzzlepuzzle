@@ -214,6 +214,21 @@ useEffect(() => {
         .controlDock { bottom: 130px !important; }
       }
       .piecesCol{display:flex;flex-direction:column;gap:10px}
+  #btnStart {
+  background-size: cover;
+  background-position: center;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  padding: 12px 24px;
+}
+
+#btnStart span {
+  background-color: #6e4301;   /* sadəcə yazının arxasında rəng */
+  padding: 12px 23px;            /* text-in ətrafında boşluq */
+  border-radius: 4px;          /* istəsən yumşaq künclər */
+}
 
       .pieceBtn{
         color:white;
@@ -222,6 +237,8 @@ useEffect(() => {
         text-align:center;
         font-weight:800;
         cursor:pointer;
+        box-sizing:border-box;
+        font-size:15px;
         background-position:center;
         background-size:cover;
         background-image:url(/button.png);
@@ -722,7 +739,7 @@ useEffect(() => {
           AZƏRBAYCAN
           MİNİATÜR SƏNƏTİ MUZEYİ
         </h1>
-        <h2 className="!text-[#4c2911] font-bold title !text-[30px] text-center">
+        <h2 className="!text-[#4c2911] font-bold  !text-[30px] text-center">
           MUSEUM OF AZERBAIJANI MINIATURE ART
         </h2>
       </div>
@@ -788,7 +805,7 @@ useEffect(() => {
             <button className="pieceBtn" data-nb="12">12 PARÇA / 12 PIECES</button>
             <button className="pieceBtn" data-nb="20">20 PARÇA / 20 PIECES</button>
             <button className="pieceBtn" data-nb="30">30 PARÇA / 30 PIECES</button>
-            <button id="btnStart" className="btn">BAŞLA / START</button>
+            <button id="btnStart" className="btn"><span>BAŞLA / START</span></button>
           </div>
           <div className="timerBox">
             <div className="w-full flex flex-col justify-center items-center">
