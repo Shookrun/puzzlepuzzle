@@ -29,7 +29,12 @@
     --foreground: #ededed;
   }
 }
-
+*{
+  user-select: none !important;
+}
+body{
+  user-select: none !important;
+}
 #boardFrame{
   
   border:3px solid rgba(255,255,255,.95);

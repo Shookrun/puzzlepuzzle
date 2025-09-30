@@ -11,7 +11,6 @@ export default function PuzzlePage() {
 
   const thumbs = ["/1.png", "/2.png", "/3.png", "/5.png","/4.png" ];
 
-  // AZ & EN açıklamalar
   const descriptionsAz = [
     "“Bayquşlarla qarğaların vuruşması” miniatürü. “Kəlilə və Dimnə”. Rəssam Şəmsəddin Təbrizi. Təbriz, 1390-cı illər. Sultan Əhməd Cəlairinin nüsxəsi Topqapı Sarayı Muzeyi, İstanbul",
     "“Cəngavər atı ilə” miniatürü. Rəssam Əbdül Baqi Bakuvi. Təbriz, 1430-cu illər. Topqapı Sarayı Muzeyi, İstanbul",
@@ -169,7 +168,7 @@ useEffect(() => {
       .subtitle{font-size:22px;color:#fff;opacity:.95;margin-top:4px}
 
       .leftDock{position:absolute;left:24px;top:140px;width:280px;display:flex;flex-direction:column;gap:18px;z-index:1200}
-      .thumbs{display:flex;flex-wrap:wrap; align-items:center; justify-content:center;gap:6px;}
+      .thumbs{display:flex;flex-wrap:wrap; align-items:center; justify-content:center;gap:10px;}
       .thumb{border:3px solid rgba(255,255,255,.6);;overflow:hidden;background:transparent;padding:0;transition:box-shadow .2s,border-color .2s,transform .06s;min-height:150px}
       .thumb:active{transform:scale(.98)}
       .thumb.active{border-color:var(--blue);box-shadow:0 0 0 4px rgba(19,202,255,.35)}
@@ -595,13 +594,23 @@ useEffect(() => {
         if(timeLeft<=0){ stopTimer(); locked = true; lockShade.classList.add("on"); showEnd(false); }
       }, 1000);
     }
-    function showEnd(win){
-      const msg = document.getElementById("ovMsg");
-      const sub = document.getElementById("ovSub");
-      
-      
-      overlay.classList.add("show");
-    }
+   function showEnd(win) {
+  const msg = document.getElementById("ovMsg");
+  const sub = document.getElementById("ovSub");
+
+  if (win) {
+    msg.innerHTML = `Təbrik edirik, vaxt bitmədən tamamlandı! <br /> 
+      Congratulations, you finished before time ran out!`;
+    sub.textContent = "";
+  } else {
+    msg.innerHTML = `Təəssüf, vaxt bitdi və tamamlanmadı! <br /> 
+      Sorry, time is up and you didn’t finish!`;
+    sub.textContent = "";
+  }
+
+  overlay.classList.add("show");
+}
+
     function isSolved(){ return puzzle.polyPieces.length===1 && puzzle.polyPieces[0].pieces.length===puzzle.nx*puzzle.ny; }
 
     function bootWith(src){
@@ -783,7 +792,7 @@ useEffect(() => {
                 onClick={() => loadPuzzle(src, i)}
                 aria-label={`thumb-${i+1}`}
               >
-                <Image src={src} alt="" width={120} height={660} draggable={false} />
+                <Image src={src} alt="" className="h-[120px]" width={120} height={660} draggable={false} />
               </button>
             ))}
           </div>
@@ -802,13 +811,13 @@ useEffect(() => {
 
         <div className="controlDock">
           <div className="piecesCol">
-            <button className="pieceBtn" data-nb="12">12 PARÇA / 12 PIECES</button>
-            <button className="pieceBtn" data-nb="20">20 PARÇA / 20 PIECES</button>
-            <button className="pieceBtn" data-nb="30">30 PARÇA / 30 PIECES</button>
-            <button id="btnStart" className="btn"><span>BAŞLA / START</span></button>
+            <button className="pieceBtn top-2" data-nb="12">12 PARÇA / 12 PIECES</button>
+            <button className="pieceBtn top-2" data-nb="20">20 PARÇA / 20 PIECES</button>
+            <button className="pieceBtn relative top-2" data-nb="30">30 PARÇA / 30 PIECES</button>
+            <button id="btnStart" className="btn relative top-7"><span>BAŞLA / START</span></button>
           </div>
           <div className="timerBox">
-            <div className="w-full flex flex-col justify-center items-center">
+            <div className="w-full flex flex-col justify-center  relative top-15 items-center">
               <span className="label">Vaxt / Duration</span>
               <div id="countdown" className="count !text-3xl bg-[#726f6fc2]">03:00</div>
             </div>

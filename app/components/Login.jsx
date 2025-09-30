@@ -1,15 +1,36 @@
-import React from 'react'
+"use client"
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+
 const Login = () => {
+  const handleExitFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch((err) => {
+        console.warn("Fullscreen çıkışı başarısız:", err);
+      });
+    } else {
+      alert("Fullscreen modunda değilsiniz 🙂");
+    }
+  };
+
   return (
-     <div className="bg-[url(/bgimg.jpg)] flex items-center gap-6 justify-center flex-col h-[100vh]">
-      <div className='flex flex-col gap-6'>
-        <h1 className="text-white title text-6xl  leading-18 text-center font-bold ">
+    <div className="relative bg-[url(/bgimg.jpg)] flex items-center gap-6 justify-center flex-col h-[100vh]">
+      {/* Sağ üst köşede X butonu */}
+      <button
+        onClick={handleExitFullscreen}
+        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-black/50 text-white font-bold text-xl hover:bg-black/70"
+        aria-label="Exit fullscreen"
+      >
+        ✕
+      </button>
+
+      <div className="flex flex-col gap-6">
+        <h1 className="text-white title text-6xl leading-18 text-center font-bold">
           AZƏRBAYCAN <br />
           MİNİATÜR SƏNƏTİ MUZEYİ
         </h1>
-        <h2 className="text-[#4c2911] font-bold  title text-[53px] text-center">
+        <h2 className="text-[#4c2911] font-bold title text-[53px] text-center">
           MUSEUM OF AZERBAIJANI MINIATURE ART
         </h2>
       </div>
@@ -20,26 +41,32 @@ const Login = () => {
       >
         BAŞLA / START
       </Link>
+
       <div className="flex flex-col mt-20 justify-center items-center">
         <span className="font-bold text-white text-xl text-shadow-lg">AZ</span>
-
         <p className="text-white title text-shadow-lg text-lg text-center">
-         Oyun başladıqda miniatür təsviri kiçik hissələrə bölünmüş şəkildə görünəcək. <br />
-Barmağınızla toxunaraq parçanı seçin. Doğru yerə sürüşdürərək yerləşdirin. <br />
-Düzgün uyğunluq: Parça yerinə tam oturduqda səs və ya işıq effekti ilə təsdiqlənəcək.
-
+          Oyun başladıqda miniatür təsviri kiçik hissələrə bölünmüş şəkildə
+          görünəcək. <br />
+          Barmağınızla toxunaraq parçanı seçin. Doğru yerə sürüşdürərək
+          yerləşdirin. <br />
+          Düzgün uyğunluq: Parça yerinə tam oturduqda səs və ya işıq effekti ilə
+          təsdiqlənəcək.
         </p>
       </div>
-     <div className="flex flex-col justify-center items-center">
-       <span className="font-bold text-white text-xl text-shadow-lg">EN</span>
-      <p className="text-white title text-shadow-lg text-lg text-center">
-       When the game begins, the miniature image will appear divided into small pieces. <br />
-Tap a piece with your finger to select it. Drag and place it in the correct spot. <br />
- When a piece is placed correctly, it will be confirmed with a sound or light effect.
-      </p>
-     </div>
-    </div>
-  )
-}
 
-export default Login
+      <div className="flex flex-col justify-center items-center">
+        <span className="font-bold text-white text-xl text-shadow-lg">EN</span>
+        <p className="text-white title text-shadow-lg text-lg text-center">
+          When the game begins, the miniature image will appear divided into
+          small pieces. <br />
+          Tap a piece with your finger to select it. Drag and place it in the
+          correct spot. <br />
+          When a piece is placed correctly, it will be confirmed with a sound or
+          light effect.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
