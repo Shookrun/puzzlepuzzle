@@ -1273,6 +1273,7 @@ export default function PuzzlePage() {
               <span>BAŞLA / START</span>
             </button>
           </div>
+          
           <div className="timerBox">
             <div className="w-full flex flex-col justify-center relative top-15 items-center">
               <span className="label">Vaxt / Duration</span>
